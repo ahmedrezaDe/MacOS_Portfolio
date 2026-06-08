@@ -1,4 +1,4 @@
-import Navbar from "./components/Navbar.jsx";
+import { Navbar, Welcome } from "#components";
 
 const App = () => {
   return (
@@ -7,6 +7,7 @@ const App = () => {
         <h1 className="text-4xl font-bold italic"></h1>
       </div>
       <Navbar />
+      <Welcome />
     </main>
   );
 };
