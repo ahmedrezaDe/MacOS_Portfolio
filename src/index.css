@@ -174,11 +174,18 @@ body {
             @apply font-bold text-sm text-center w-full;
         }
 
-        .text-stack {
+        .techstack {
             @apply text-sm font-roboto p-5;
 
             .label {
                 @apply flex items-center ms-10 mt-7;
+                /* FIXED: Explicitly color the first child text row green, and the second one blue */
+                p:first-child {
+                    @apply text-[#00A154] font-semibold;
+                }
+                p:last-child {
+                    @apply text-black  font-semibold; /* Adjust to whatever theme blue you like */
+                }
             }
 
             .content {
@@ -200,13 +207,17 @@ body {
             }
 
             .footnote {
-                @apply text-[#00A154] space-y-1;
+                @apply space-y-1;
 
                 p {
-                    @apply flex items-center;
+                    @apply flex items-center text-[#00A154];
 
                     svg {
                         @apply w-5 me-5;
+                    }
+                    /* ALLOW OVERRIDES: Make sure explicitly targeted elements drop down to pure black layout rules */
+                    &.text-black {
+                        @apply text-black!; /* The ! modifier ensures this class overrides the baseline rule above */
                     }
                 }
             }
