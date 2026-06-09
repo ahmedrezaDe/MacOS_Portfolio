@@ -13,7 +13,7 @@ export default defineConfig({
         dirname(fileURLToPath(import.meta.url)),
         "src/components",
       ),
-      "#/constant": resolve(
+      "#/constants": resolve(
         dirname(fileURLToPath(import.meta.url)),
         "src/constants",
       ),

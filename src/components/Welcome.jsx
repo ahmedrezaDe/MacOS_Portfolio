@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-gsap.registerPlugin(useGSAP);
 
+// Keep this configuration object separate
 const FONT_WEIGHTS = {
   subtitle: { min: 100, max: 400, default: 100 },
   title: { min: 100, max: 900, default: 400 },
@@ -29,6 +29,20 @@ const setupTextHover = (container, type) => {
   const letters = container.querySelectorAll("span");
   const { min, max, default: base } = FONT_WEIGHTS[type];
 
+  // OPTIMIZATION: Cache bounding rectangles to stop layout thrashing
+  let cachedDimensions = [];
+
+  const updateCachedDimensions = () => {
+    const { left: containerLeft } = container.getBoundingClientRect();
+    cachedDimensions = Array.from(letters).map((letter) => {
+      const { left: letterLeft, width } = letter.getBoundingClientRect();
+      return {
+        letter,
+        letterCenter: letterLeft - containerLeft + width / 2,
+      };
+    });
+  };
+
   const animateLetter = (letter, weight, duration = 0.25) => {
     return gsap.to(letter, {
       duration,
@@ -40,25 +54,31 @@ const setupTextHover = (container, type) => {
 
   const handleMouseMove = (e) => {
     const { left: containerLeft } = container.getBoundingClientRect();
-    const mouseX = e.clientX - containerLeft; // Relative to container
+    const mouseX = e.clientX - containerLeft;
 
-    letters.forEach((letter) => {
-      const { left: letterLeft, width } = letter.getBoundingClientRect();
-      // Transform letter position to be relative to the container as well
-      const letterCenter = letterLeft - containerLeft + width / 2;
+    // If dimensions haven't been cached yet, run it once safely
+    if (cachedDimensions.length === 0) updateCachedDimensions();
+
+    cachedDimensions.forEach(({ letter, letterCenter }) => {
       const distance = Math.abs(mouseX - letterCenter);
       const intensity = Math.exp(-(distance ** 2) / 20000);
 
       animateLetter(letter, min + (max - min) * intensity);
     });
   };
-  const handleMouseLeave = () =>
-    letters.forEach((letter) => animateLetter(letter, base, 0.3));
 
+  const handleMouseLeave = () => {
+    cachedDimensions = []; // Clear cache when mouse leaves
+    letters.forEach((letter) => animateLetter(letter, base, 0.3));
+  };
+
+  // Update layout positions on window resize so coordinates stay precise
+  window.addEventListener("resize", updateCachedDimensions);
   container.addEventListener("mousemove", handleMouseMove);
   container.addEventListener("mouseleave", handleMouseLeave);
 
   return () => {
+    window.removeEventListener("resize", updateCachedDimensions);
     container.removeEventListener("mousemove", handleMouseMove);
     container.removeEventListener("mouseleave", handleMouseLeave);
   };
@@ -68,6 +88,7 @@ const Welcome = () => {
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
 
+  // Secure context execution by running inside the proper React lifecycle
   useGSAP(() => {
     const titleCleanup = setupTextHover(titleRef.current, "title");
     const subtitleCleanup = setupTextHover(subtitleRef.current, "subtitle");
@@ -76,7 +97,7 @@ const Welcome = () => {
       subtitleCleanup();
       titleCleanup();
     };
-  }, []);
+  }, []); // Empty array is fine here as useGSAP handles element visibility changes smoothly
 
   return (
     <section id="welcome">
@@ -88,7 +109,7 @@ const Welcome = () => {
         )}
       </p>
       <h1 ref={titleRef} className="mt-7">
-        {renderText("Macfolio", "text-9xl italic font-georama")}
+        {renderText("macfolio", "text-9xl italic font-georama")}
       </h1>
 
       <div className="small-screen">
@@ -97,4 +118,5 @@ const Welcome = () => {
     </section>
   );
 };
+
 export default Welcome;
