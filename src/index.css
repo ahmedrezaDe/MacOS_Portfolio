@@ -119,6 +119,20 @@ body {
         }
     }
 
+    /* ADD THIS NEW CLASS HERE */
+    .nav-link-button {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font: inherit;
+        color: inherit;
+        padding: 0;
+        text-align: left;
+
+        /* Apply your original text spacing layout rules plus clean focus indicators */
+        @apply text-sm hover:underline transition-all outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-sm;
+    }
+
     #window-header {
         @apply flex items-center justify-between px-4 py-3 rounded-t-lg bg-gray-50 border-b border-gray-200 select-none text-sm text-gray-400;
     }

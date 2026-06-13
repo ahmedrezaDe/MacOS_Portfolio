@@ -45,7 +45,6 @@ const Terminal = () => {
           </p>
 
           <p className="text-black">
-            {/* eslint-disable-next-line no-undef */}
             <Flag size={15} fill="black" />
             Render time: 5ms
           </p>
